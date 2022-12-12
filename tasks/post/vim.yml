@@ -1,0 +1,20 @@
+---
+- name: Create Directories
+  ansible.builtin.file:
+    state: directory
+    path: "{{ item }}"
+  with_items:
+    - "{{ ansible_env.HOME }}/.vim"
+    - "{{ ansible_env.HOME }}/.vim/bundle"
+    - "{{ ansible_env.HOME }}/.vim/audoload"
+
+- name: Download Pathogen vim file
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/tpope/vim-pathogen/master/autoload/pathogen.vim
+    dest: "{{ ansible_env.HOME }}/.vim/autoload/pathogen.vim"
+
+- name: Clone nerdtree repo
+  ansible.builtin.git:
+    repo: https://github.com/preservim/nerdtree.git
+    dest: "{{ ansible_env.HOME }}/.vim/bundle/nerdtree"
+    depth: 1

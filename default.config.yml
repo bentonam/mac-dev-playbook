@@ -1,21 +1,39 @@
 ---
-downloads: ~/.ansible-downloads/
+downloads: "{{ ansible_env.HOME }}/Downloads/.ansible-downloads"
 
 configure_dotfiles: true
 configure_terminal: true
 configure_osx: true
 
 # Set to 'true' to configure the Dock via dockutil.
-configure_dock: false
-dockitems_remove: []
-# - Launchpad
-# - TV
-# - Podcasts
-# - 'App Store'
-dockitems_persist: []
-# - name: "Sublime Text"
-#   path: "/Applications/Sublime Text.app/"
-#   pos: 5
+configure_dock: true
+dockitems_remove:
+  - App Store
+  - Calendar
+  - FaceTime
+  - iCal
+  - Keynote
+  - Maps
+  - Mail
+  - Music
+  - News
+  - Numbers
+  - Pages
+  - Photos
+  - Podcasts
+  - Launchpad
+  - TV
+
+dockitems_persist:
+  - name: Slack
+    path: /Applications/Slack.app/
+    pos: 5
+  - name: Fantastical
+    path: /Applications/Fantastical.app/
+    pos: 6
+  - name: iTerm2
+    path: /Applications/iTerm.app/
+    pos: 7
 
 configure_sudoers: false
 sudoers_custom_config: ''
@@ -24,69 +42,188 @@ sudoers_custom_config: ''
 #   # Allow users in admin group to use sudo with no password.
 #   %admin ALL=(ALL) NOPASSWD: ALL
 
-dotfiles_repo: https://github.com/geerlingguy/dotfiles.git
+dotfiles_repo: git@github.com:bentonam/dotfiles.git
 dotfiles_repo_accept_hostkey: true
-dotfiles_repo_local_destination: ~/Development/GitHub/dotfiles
+dotfiles_repo_local_destination: "{{ ansible_env.HOME }}/Development/bentonam/dotfiles"
 dotfiles_files:
-  - .zshrc
+  - .aliases.d
+  - .aliases
+  - .functions
+  - .functions.d
+  - .gitconfig
   - .gitignore
   - .inputrc
-  - .osx
+  - .macos
   - .vimrc
+  - .zprofile
+  - .zshrc
 
 homebrew_installed_packages:
-  # - ansible # Installed via Pip.
+  - 7zip
+  - asciidoc
   - autoconf
+  - awscli
+  - azure-cli
   - bash-completion
+  - bat
+  - composer
+  - cowsay
+  - dotnet
   - doxygen
+  - fluent-bit
+  - fzf
+  - gcc
   - gettext
   - gifsicle
   - git
   - github/gh/gh
+  - gnu-tar
   - go
   - gpg
+  - grafana-agent
+  - helm
   - httpie
+  - imagemagick
   - iperf
+  - java
+  - jsonnet
+  - k3d
+  - k6
+  - kubectl
+  - kubectx
+  - kustomize
+  - jq
   - libevent
-  - sqlite
+  - lnav
+  - markdownlint-cli
+  - mas
   - mcrypt
-  - nmap
   - node
+  - nmap
   - nvm
-  - php
-  - ssh-copy-id
-  - cowsay
-  - readline
   - openssl
+  - pandoc
+  - php
+  - pipenv
+  - podman
+  - promtail
   - pv
+  - ranger    # A console file manager with VI key bindings.
+  - readline
+  - ruby
+  - s3cmd
+  - ssh-copy-id
+  - shellcheck
+  - sqlite
+  - tanka
+  - terraform
+  - tree
+  - unzip
+  - vault
   - wget
   - wrk
+  - yq    # Process YAML documents from the CLI
+  - z
+  - zsh
+  - zsh-autosuggestions
   - zsh-history-substring-search
+  - zsh-syntax-highlighting
 
 homebrew_taps:
   - homebrew/core
   - homebrew/cask
+  - homebrew/cask-versions
+  - homebrew/cask-fonts
 
 homebrew_cask_appdir: /Applications
 homebrew_cask_apps:
+  - 1password
+  - alfred
+  - beyond-compare
+  - brave-browser
+  - calibre
   - chromedriver
+  - cyberduck
   - docker
   - dropbox
+  - eclipse-ide
+  - evernote
+  - expressions
   - firefox
+  - font-anka-coder
+  - font-fira-code-nerd-font
+  - font-fira-code
+  - font-fira-mono-for-powerline
+  - font-fira-mono-nerd-font
+  - font-fira-mono
+  - font-fira-sans-condensed
+  - font-fira-sans-extra-condensed
+  - font-fira-sans
+  - font-firago
+  - font-dejavu-sans-mono-for-powerline
+  - font-dejavu-sans-mono-nerd-font
+  - font-dejavu
+  - font-awesome-terminal-fonts
+  - font-input
+  - font-hack-nerd-font
+  - font-hack
+  - font-hackgen-nerd
+  - font-hackgen
+  - font-anonymice-nerd-font
+  - font-anonymice-powerline
+  - font-anonymous-pro
+  - font-cascadia-code-pl
+  - font-cascadia-code
+  - font-cascadia-mono-pl
+  - font-cascadia-mono
+  - font-jetbrains-mono-nerd-font
+  - font-jetbrains-mono
+  - font-consolas-for-powerline
+  - gimp
+  - go2shell
   - google-chrome
+  - google-cloud-sdk
+  - google-drive
   - handbrake
+  - intellij-idea-ce
+  - iterm2
+  - kaleidoscope
+  - kubenav
+  - lens
   - licecap
+  - macdown
+  - microsoft-teams
+  - postman
+  - spectacle
   - sequel-ace
   - slack
   - sublime-text
+  - tower
   - transmit
+  - vagrant
+  - vnc-viewer
+  - visual-studio-code
+  - zoom
 
 # See `geerlingguy.mas` role documentation for usage instructions.
-mas_installed_apps: []
 mas_email: ""
 mas_password: ""
+mas_installed_apps:
+  - { id: 937984704, name: "Amphetamine" }
+  - { id: 975937182, name: "Fantastical - Calendar" }
+  - { id: 1290358394, name: "Cardhop - Contacts" }
+  - { id: 1569813296, name: "1Password for Safari" }
+  - { id: 918858936, name: "Airmail 5" }
+  - { id: 1289197285, name: "MindNode – Mind Map & Outline" }
+mas_uninstalled_apps: []
+#mas_uninstalled_apps:
+#  - { id: 408981434, name: "iMovie" }
+#  - { id: 409183694, name: "Keynote" }
+#  - { id: 409201541, name: "Pages" }
+#  - { id: 409203825, name: "Numbers" }
+#  - { id: 682658836, name: "GarageBand" }
 
-osx_script: "~/.osx --no-restart"
+osx_script: "~/.macos --no-restart"
 
 # Install packages from other package managers.
 # Note: You are responsible for making sure the required package managers are
@@ -99,32 +236,118 @@ gem_packages: []
 # - name: bundler
 #   state: present # present/absent/latest, default: present
 #   version: "~> 1.15.1" # default: N/A
-npm_packages: []
-# - name: webpack
-#   state: present # present/absent/latest, default: present
-#   version: "^2.6" # default: N/A
-pip_packages: []
-# - name: mkdocs
-#   state: present # present/absent/latest, default: present
-#   version: "0.16.3" # default: N/A
+npm_packages:
+  - name: remark-cli
+    state: present
+  - name: textlint
+    state: present
+pip_packages:
+  - name: yamllint
+    state: present
+  - name: molecule
+    state: present
 
 # Set to 'true' to configure Sublime Text.
-configure_sublime: false
-sublime_base_path: '~/Library/Application Support/Sublime Text'
-sublime_config_path: "Packages/User"
+configure_sublime: true
+sublime_base_path: "{{ ansible_env.HOME }}/Library/Application\ Support/Sublime Text"
+sublime_config_path: Packages/User
 sublime_package_control:
-  - "DocBlockr"
-  - "Dockerfile Syntax Highlighting"
-  - "FileDiffs"
-  - "GitHub Flavored Markdown Preview"
-  - "Jinja2"
-  - "Package Control"
-  - "PHP-Twig"
-  - "Pretty JSON"
-  - "SublimeLinter"
-  - "SublimeLinter-contrib-yamllint"
-  - "TrailingSpaces"
-  - "WordCount"
+  - A File Icon
+  - BracketHighlighter
+  - ColorHelper
+  - DocBlockr
+  - Dockerfile Syntax Highlighting
+  - DoxyDoxygen
+  - FileDiffs
+  - GitHub Flavored Markdown Preview
+  - Jinja2
+  - Package Control
+  - Pretty JSON
+  - SideBarEnhancements
+  - SublimeLinter
+  - SublimeLinter-contrib-yamllint
+  - TrailingSpaces
+  - WordCount
+
+# Configure VS Code
+configure_vscode: true
+vscode_extensions:
+  - bungcip.better-toml
+  - chrmarti.regex
+  - donjayamanne.githistory
+  - eamodio.gitlens
+  - eg2.vscode-npm-script
+  - esbenp.prettier-vscode
+  - golang.go
+  - Grafana.vscode-jsonnet
+  - kamikillerto.vscode-colorize
+  - ms-azuretools.vscode-docker
+  - ms-kubernetes-tools.vscode-kubernetes-tools
+  - ms-python.isort
+  - ms-python.python
+  - ms-python.vscode-pylance
+  - ms-toolsai.jupyter
+  - ms-toolsai.jupyter-keymap
+  - ms-toolsai.jupyter-renderers
+  - ms-toolsai.vscode-jupyter-cell-tags
+  - ms-toolsai.vscode-jupyter-slideshow
+  - ms-vscode-remote.remote-containers
+  - ms-vscode.makefile-tools
+  - ms-vscode.vscode-typescript-next
+  - redhat.ansible
+  - redhat.java
+  - redhat.vscode-yaml
+  - streetsidesoftware.code-spell-checker
+  - timonwong.shellcheck
+  - unifiedjs.vscode-remark
+  - VisualStudioExptTeam.intellicode-api-usage-examples
+  - VisualStudioExptTeam.vscodeintellicode
+  - vscjava.vscode-java-debug
+  - vscjava.vscode-java-dependency
+  - vscjava.vscode-java-pack
+  - vscjava.vscode-java-test
+  - vscjava.vscode-maven
+  - vscode-icons-team.vscode-icons
+  - wayou.vscode-todo-highlight
+  - zhuangtongfa.material-theme
+
+git_base: "{{ ansible_env.HOME }}/Development"
+git_repos:
+  - bentonam/dotfiles
+  - couchbaselabs/ansible-couchbase-exporter
+  - couchbaselabs/ansible-couchbase-fluent-bit
+  - couchbaselabs/ansible-couchbase-server
+  - couchbaselabs/ansible-couchbase-cbhealthagent
+  - couchbaselabs/ansible-couchbase-cbmultimanager
+  - couchbaselabs/couchbase-fluent-bit-config
+  - couchbaselabs/cmos-prometheus-exporter
+  - couchbase/couchbase-fluent-bit
+  - fluent/fluent-bit
+  - fluent/fluent-operator
+  - fluent/helm-charts
+  - grafana/grafana
+  - grafana/agent
+  - grafana/loki
+  - grafana/mimir
+  - grafana/tempo
+  - grafana/dashboard-linter
+  - grafana/oncall
+  - grafana/k6
+  - grafana/k6-operator
+  - grafana/helm-charts
+  - grafana/tanka
+  - grafana/grizzly
+  - grafana/grafana-image-renderer
+  - grafana/faro
+  - grafana/tutorials
+  - grafana/devtools
+  - grafana/grafana-ansible-collection
+  - prometheus/prometheus
+  - prometheus/alertmanager
+  - prometheus/node_exporter
+  - prometheus/blackbox_exporter
+  - prometheus-operator/prometheus-operator
+  - prometheus-operator/kube-prometheus
 
 # Glob pattern to ansible task files to run after all other tasks are finished.
-post_provision_tasks: []
+post_provision_tasks: tasks/post/*.yml

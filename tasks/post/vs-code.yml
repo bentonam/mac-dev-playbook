@@ -1,0 +1,15 @@
+---
+- name: Create Directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ ansible_env.HOME }}/Library/Application\ Support/Code/User"
+
+- name: Install VS Code Extensions
+  command: |-
+    /opt/homebrew/bin/code --install-extension {{ item }}
+  loop: "{{ vscode_extensions }}"
+
+- name: Set VS Code Settings
+  ansible.builtin.copy:
+    src: vs-code/settings.json
+    dest: "{{ ansible_env.HOME }}/Library/Application\ Support/Code/User/settings.json"

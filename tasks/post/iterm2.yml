@@ -1,0 +1,26 @@
+---
+- name: Download SourceCodePro+FontAwesome Font
+  ansible.builtin.get_url:
+    url: https://github.com/Falkor/dotfiles/blob/master/fonts/SourceCodePro%2BPowerline%2BAwesome%2BRegular.ttf
+    dest: "{{ ansible_env.HOME }}/Library/Fonts"
+
+- name: Create Directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ ansible_env.HOME }}/Library/Application\ Support/iTerm2/DynamicProfiles"
+
+- name: Copy iTerm2 Profile
+  ansible.builtin.copy:
+    src: iterm2/default-profile.json
+    dest: "{{ ansible_env.HOME }}/Library/Application\ Support/iTerm2/DynamicProfiles"
+
+# https://medium.com/weekly-webtips/my-terminal-setu-iterm2-zsh-powerlevel10k-f7101ffc72c2
+- name: Install oh-my-zsh
+  shell: |-
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+
+- name: Clone powerlevel10k repo
+  ansible.builtin.git:
+    repo: https://github.com/romkatv/powerlevel10k.git
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/themes/powerlevel10k"
+    depth: 1

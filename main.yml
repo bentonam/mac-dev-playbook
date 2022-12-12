@@ -11,6 +11,15 @@
         - "{{ playbook_dir }}/config.yml"
       tags: ['always']
 
+    - name: Create Directories
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/{{ item }}"
+        state: directory
+      with_items:
+        - .ssh
+        - .ansible
+      tags: ['always']
+
   roles:
     - role: elliotweiser.osx-command-line-tools
     - role: geerlingguy.mac.homebrew
@@ -46,9 +55,11 @@
       tags: ['sublime-text']
 
     - block:
+        - debug:
+            var: post_provision_tasks
         - name: Run configured post-provision ansible task files.
           include_tasks: "{{ outer_item }}"
           loop_control:
             loop_var: outer_item
-          with_fileglob: "{{ post_provision_tasks|default(omit) }}"
+          with_fileglob: "{{ post_provision_tasks| default(omit) }}"
       tags: ['post']

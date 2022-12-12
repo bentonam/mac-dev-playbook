@@ -1,0 +1,17 @@
+---
+# all repos are cloned into {{ git_base }}/owner/repo
+# create directories
+- name: Create Repo Owner Directories
+  ansible.builtin.file:
+    state: directory
+    path: "{{ git_base }}/{{ item.split('/')[0] }}"
+  loop: "{{ git_repos }}"
+
+# clone repos
+- name: Clone Repos
+  ansible.builtin.git:
+    repo: "git@github.com:{{ item }}.git"
+    dest: "{{ git_base }}/{{ item }}"
+    depth: 1
+    accept_hostkey: true
+  loop: "{{ git_repos }}"

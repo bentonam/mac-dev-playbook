@@ -1,0 +1,165 @@
+---
+- name: Make sure Downloads Directory exists
+  ansible.builtin.file:
+    state: directory
+    path: "{{ downloads }}"
+
+- name: Check if Mimir is installed already
+  stat:
+    path: /usr/local/bin/mimirtool
+  register: mimir_check
+
+- name: Install Mimir Tools
+  block:
+    - name: Get the latest published Mimir  # noqa command-instead-of-module
+      ansible.builtin.shell: |
+        curl -s https://api.github.com/repos/grafana/mimir/releases/latest \
+          | grep -m 1 tag_name \
+          | cut -d '"' -f 4 | cut -c 7-
+      changed_when: false
+      run_once: true
+      register: _mimir_request
+
+    - name: Set the Mimir Version
+      ansible.builtin.set_fact:
+        mimir_version: "{{ _mimir_request.stdout | string }}"
+
+    - name: Mimir Version
+      ansible.builtin.debug:
+        msg: "Mimir Version: {{ mimir_version }}"
+
+    - name: Set the Mimir Base Download URL
+      ansible.builtin.set_fact:
+        mimir_download_url: "https://github.com/grafana/mimir/releases/download/mimir-{{ mimir_version }}"
+
+    - name: Download Binaries
+      become: true
+      get_url:
+        url: "{{ mimir_download_url }}/{{ item }}-{{ ansible_architecture }}"
+        dest: "/usr/local/bin/{{ item | replace('-darwin', '') }}"
+        owner: root
+        group: wheel
+        mode: 0755
+      register: _download_binary
+      until: _download_binary is succeeded
+      retries: 5
+      delay: 2
+      check_mode: false
+      with_items:
+        - metaconvert-darwin
+        - mimir-darwin
+        - mimirtool-darwin
+        - query-tee-darwin
+
+  when: not mimir_check.stat.exists
+
+- name: Check if Loki is installed already
+  stat:
+    path: /usr/local/bin/loki
+  register: loki_check
+
+- name: Install Loki Tools
+  block:
+    - name: Get the latest published loki  # noqa command-instead-of-module
+      ansible.builtin.shell: |
+        curl -s https://api.github.com/repos/grafana/loki/releases/latest \
+          | grep -m 1 tag_name \
+          | cut -d '"' -f 4 | cut -c 2-
+      changed_when: false
+      run_once: true
+      register: _loki_request
+
+    - name: Set the loki Version
+      ansible.builtin.set_fact:
+        loki_version: "{{ _loki_request.stdout | string }}"
+
+    - name: Loki Version
+      ansible.builtin.debug:
+        msg: "Loki Version: {{ loki_version }}"
+
+    - name: Set the Loki Base Download URL
+      ansible.builtin.set_fact:
+        loki_download_url: "https://github.com/grafana/loki/releases/download/v{{ loki_version }}"
+
+    - name: Download Loki Archives to Local Folder
+      unarchive:
+        src: "{{ loki_download_url }}/{{ item }}-{{ ansible_architecture }}.zip"
+        dest: "{{ downloads }}"
+        remote_src: true
+      register: _download_binary
+      until: _download_binary is succeeded
+      retries: 5
+      delay: 2
+      check_mode: false
+      with_items:
+        - logcli-darwin
+        - loki-darwin
+        - promtail-darwin
+
+    - name: Copy Loki Binaries
+      become: true
+      ansible.builtin.copy:
+        src: "{{ downloads }}/{{ item }}-{{ ansible_architecture }}"
+        dest: "/usr/local/bin/{{ item | replace('-darwin', '') }}"
+        mode: 0755
+        owner: root
+        group: wheel
+      with_items:
+        - logcli-darwin
+        - loki-darwin
+        - promtail-darwin
+
+    - name: Cleanup Loki Files
+      ansible.builtin.file:
+        state: absent
+        path: "{{ downloads }}/{{ item }}-{{ ansible_architecture }}"
+      with_items:
+        - logcli-darwin
+        - loki-darwin
+        - promtail-darwin
+
+  when: not loki_check.stat.exists
+
+- name: Check if Grizzly is installed already
+  stat:
+    path: /usr/local/bin/grr
+  register: grizzly_check
+
+- name: Install Grizzly Tools
+  block:
+    - name: Get the latest published Grizzly  # noqa command-instead-of-module
+      ansible.builtin.shell: |
+        curl -s https://api.github.com/repos/grafana/grizzly/releases/latest \
+          | grep -m 1 tag_name \
+          | cut -d '"' -f 4 | cut -c 2-
+      changed_when: false
+      run_once: true
+      register: _grizzly_request
+
+    - name: Set the grizzly Version
+      ansible.builtin.set_fact:
+        grizzly_version: "{{ _grizzly_request.stdout | string }}"
+
+    - name: Grizzly Version
+      ansible.builtin.debug:
+        msg: "Grizzly Version: {{ grizzly_version }}"
+
+    - name: Set the Grizzly Base Download URL
+      ansible.builtin.set_fact:
+        grizzly_download_url: "https://github.com/grafana/grizzly/releases/download/v{{ grizzly_version }}/grr-darwin-{{ ansible_architecture }}"
+
+    - name: Download Grizzly Binary
+      become: true
+      get_url:
+        url: "{{ grizzly_download_url }}"
+        dest: "/usr/local/bin/grr"
+        owner: root
+        group: wheel
+        mode: 0755
+      register: _download_binary
+      until: _download_binary is succeeded
+      retries: 5
+      delay: 2
+      check_mode: false
+
+  when: not grizzly_check.stat.exists
