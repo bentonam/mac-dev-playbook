@@ -115,6 +115,7 @@ homebrew_installed_packages:
   - ssh-copy-id
   - shellcheck
   - sqlite
+  - stern
   - tanka
   - terraform
   - tree
@@ -139,6 +140,7 @@ homebrew_cask_appdir: /Applications
 homebrew_cask_apps:
   - 1password
   - alfred
+  - arc
   - beyond-compare
   - brave-browser
   - calibre
@@ -149,6 +151,7 @@ homebrew_cask_apps:
   - eclipse-ide
   - evernote
   - expressions
+  - fantastical
   - firefox
   - font-anka-coder
   - font-fira-code-nerd-font
@@ -210,18 +213,11 @@ mas_email: ""
 mas_password: ""
 mas_installed_apps:
   - { id: 937984704, name: "Amphetamine" }
-  - { id: 975937182, name: "Fantastical - Calendar" }
   - { id: 1290358394, name: "Cardhop - Contacts" }
   - { id: 1569813296, name: "1Password for Safari" }
   - { id: 918858936, name: "Airmail 5" }
   - { id: 1289197285, name: "MindNode – Mind Map & Outline" }
 mas_uninstalled_apps: []
-#mas_uninstalled_apps:
-#  - { id: 408981434, name: "iMovie" }
-#  - { id: 409183694, name: "Keynote" }
-#  - { id: 409201541, name: "Pages" }
-#  - { id: 409203825, name: "Numbers" }
-#  - { id: 682658836, name: "GarageBand" }
 
 osx_script: "~/.macos --no-restart"
 
