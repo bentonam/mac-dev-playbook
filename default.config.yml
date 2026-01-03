@@ -5,6 +5,10 @@ configure_dotfiles: true
 configure_terminal: true
 configure_osx: true
 
+# Prompt to confirm SSH keys before cloning git@github.com repos.
+# Set to false for non-interactive runs/CI.
+configure_ssh_keys_prompt: true
+
 # Set to 'true' to configure the Dock via dockutil.
 configure_dock: true
 dockitems_remove:
@@ -59,29 +63,52 @@ dotfiles_files:
   - .zshrc
 
 homebrew_installed_packages:
+  # NOTE: This list is intended to capture "top-level" packages you want managed
+  # by Homebrew. Many other items you see in `brew list` will be dependencies and
+  # do not need to be listed here unless you want them pinned explicitly.
+  - act
+  - alertmanager
+  - alloy
+  - ansible
+  - ansible-lint
   - 7zip
   - asciidoc
+  - asdf
   - autoconf
+  - autojump
   - awscli
   - azure-cli
+  - bash
   - bash-completion
   - bat
+  - blackbox_exporter
+  - chart-testing
   - composer
   - cowsay
   - dotnet
   - doxygen
+  - eksctl
   - fluent-bit
+  - flux
   - fzf
   - gcc
   - gettext
   - gifsicle
   - git
+  - git-filter-repo
+  - gitleaks
   - github/gh/gh
   - gnu-tar
   - go
+  - go-jira
+  - golangci-lint
   - gpg
+  - grafana
   - grafana-agent
+  - grizzly
+  - hadolint
   - helm
+  - helm-docs
   - httpie
   - imagemagick
   - iperf
@@ -89,23 +116,35 @@ homebrew_installed_packages:
   - jsonnet
   - k3d
   - k6
+  - k9s
+  - kind
+  - kube-score
+  - kubeconform
+  - kubebuilder
+  - kubeval
   - kubectl
   - kubectx
   - kustomize
   - jq
   - libevent
+  - logcli
+  - loki
   - lnav
   - markdownlint-cli
   - mas
+  - mimirtool
   - mcrypt
   - node
   - nmap
   - nvm
+  - opentofu
   - openssl
   - pandoc
   - php
   - pipenv
   - podman
+  - promlens
+  - prometheus
   - promtail
   - pv
   - ranger    # A console file manager with VI key bindings.
@@ -118,12 +157,21 @@ homebrew_installed_packages:
   - stern
   - tanka
   - terraform
+  - tflint
   - tree
+  - trivy
+  - trufflehog
+  - trunk
   - unzip
   - vault
+  - vendir
   - wget
+  - woke
   - wrk
+  - yamale
+  - yamlfmt
   - yq    # Process YAML documents from the CLI
+  - zizmor
   - z
   - zsh
   - zsh-autosuggestions
@@ -182,6 +230,7 @@ homebrew_cask_apps:
   - font-jetbrains-mono-nerd-font
   - font-jetbrains-mono
   - font-consolas-for-powerline
+  - font-inter
   - gimp
   - go2shell
   - google-chrome
@@ -195,6 +244,7 @@ homebrew_cask_apps:
   - lens
   - licecap
   - macdown
+  - mactex
   - microsoft-teams
   - postman
   - spectacle
@@ -206,17 +256,37 @@ homebrew_cask_apps:
   - vagrant
   - vnc-viewer
   - visual-studio-code
+  - wkhtmltopdf
   - zoom
+
+# Helm configuration
+helm_repositories:
+  - {name: grafana, url: "https://grafana.github.io/helm-charts"}
+  - {name: minio, url: "https://charts.min.io/"}
+  - {name: bitnami, url: "https://charts.bitnami.com/bitnami"}
+  - {name: prometheus-community, url: "https://prometheus-community.github.io/helm-charts"}
+  - {name: opencost, url: "https://opencost.github.io/opencost-helm-chart"}
+  - {name: christianhuth, url: "https://christianhuth.github.io/helm-charts"}
+  - {name: kepler, url: "https://sustainable-computing-io.github.io/kepler-helm-chart"}
 
 # See `geerlingguy.mas` role documentation for usage instructions.
 mas_email: ""
 mas_password: ""
 mas_installed_apps:
-  - { id: 937984704, name: "Amphetamine" }
-  - { id: 1290358394, name: "Cardhop - Contacts" }
-  - { id: 1569813296, name: "1Password for Safari" }
-  - { id: 918858936, name: "Airmail 5" }
-  - { id: 1289197285, name: "MindNode – Mind Map & Outline" }
+  - {id: 1569813296, name: "1Password for Safari"}
+  - {id: 918858936, name: "Airmail"}
+  - {id: 937984704, name: "Amphetamine"}
+  - {id: 1290358394, name: "Cardhop"}
+  - {id: 682658836, name: "GarageBand"}
+  - {id: 1474276998, name: "HP"}
+  - {id: 408981434, name: "iMovie"}
+  - {id: 409183694, name: "Keynote"}
+  - {id: 1289197285, name: "MindNode Classic"}
+  - {id: 409203825, name: "Numbers"}
+  - {id: 1439967473, name: "Okta Extension App"}
+  - {id: 409201541, name: "Pages"}
+  - {id: 318038618, name: "SecurID Authenticator"}
+  - {id: 1295203466, name: "Windows App"}
 mas_uninstalled_apps: []
 
 osx_script: "~/.macos --no-restart"
@@ -310,16 +380,6 @@ vscode_extensions:
 git_base: "{{ ansible_env.HOME }}/Development"
 git_repos:
   - bentonam/dotfiles
-  - couchbaselabs/ansible-couchbase-exporter
-  - couchbaselabs/ansible-couchbase-fluent-bit
-  - couchbaselabs/ansible-couchbase-server
-  - couchbaselabs/ansible-couchbase-cbhealthagent
-  - couchbaselabs/ansible-couchbase-cbmultimanager
-  - couchbaselabs/couchbase-fluent-bit-config
-  - couchbaselabs/cmos-prometheus-exporter
-  - couchbase/couchbase-fluent-bit
-  - fluent/fluent-bit
-  - fluent/fluent-operator
   - fluent/helm-charts
   - grafana/grafana
   - grafana/agent

@@ -20,6 +20,10 @@
         - .ansible
       tags: ['always']
 
+    - import_tasks: tasks/ssh.yml
+      when: configure_ssh_keys_prompt
+      tags: ['ssh']
+
   roles:
     - role: elliotweiser.osx-command-line-tools
     - role: geerlingguy.mac.homebrew

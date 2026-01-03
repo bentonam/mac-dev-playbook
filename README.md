@@ -9,17 +9,35 @@ This playbook installs and configures most of the software I use on my Mac for w
 ## Installation
 
   1. Ensure Apple's command line tools are installed (`xcode-select --install` to launch the installer).
-  2. [Install Ansible](https://docs.ansible.com/ansible/latest/installation_guide/index.html):
+  2. Bootstrap Ansible (recommended):
 
-     1. Run the following command to add Python 3 to your $PATH: `export PATH="$HOME/Library/Python/3.9/bin:/opt/homebrew/bin:$PATH"`
-     2. Upgrade Pip: `sudo pip3 install --upgrade pip`
-     3. Install Ansible: `pip3 install ansible`
+     1. Run: `./bootstrap.sh`
+
+     Or manually:
+
+     1. Upgrade pip (user install): `python3 -m pip install --user --upgrade pip`
+     2. Install Ansible (user install): `python3 -m pip install --user --upgrade ansible`
+     3. Ensure Ansible is on your PATH:
+        `export PATH="$(python3 -m site --user-base)/bin:$PATH"`
+
+> Note: This playbook will also install `ansible`/`ansible-lint` via Homebrew (see `homebrew_installed_packages`).
 
   3. Clone or download this repository to your local drive.
   4. Run `ansible-galaxy install -r requirements.yml` inside this directory to install required Ansible roles.
   5. Run `ansible-playbook main.yml --ask-become-pass` inside this directory. Enter your macOS account password when prompted for the 'BECOME' password.
 
 > Note: If some Homebrew commands fail, you might need to agree to Xcode's license or fix some other Brew issue. Run `brew doctor` to see if this is the case.
+
+### First-run checklist (new Mac)
+
+Before you run the playbook end-to-end, these reduce the most common failures:
+
+- **Sign into the Mac App Store**: required for `mas` installs to work.
+- **SSH keys**:
+  - Ensure you have at least one key in `~/.ssh` and that it’s added to GitHub.
+  - This playbook will prompt you to confirm detected keys before cloning any `git@github.com:...` repos.
+  - For non-interactive runs, set `configure_ssh_keys_prompt: false`.
+- **1Password / auth tooling** (if you use it): install + sign in before relying on any shell plugins or private repo access.
 
 ### Use with a remote Mac
 

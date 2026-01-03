@@ -1,0 +1,150 @@
+---
+# SSH key readiness check (interactive by default).
+# This runs early so GitHub SSH clones in dotfiles/repos tasks don't fail mysteriously.
+
+- name: Ensure ~/.ssh directory has correct permissions
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ssh"
+    state: directory
+    mode: "0700"
+
+- name: Find SSH files in ~/.ssh
+  ansible.builtin.find:
+    paths: "{{ ansible_env.HOME }}/.ssh"
+    file_type: file
+  register: ssh_files_found
+  failed_when: false
+  changed_when: false
+
+- name: Fix permissions for common SSH files
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "{{ ansible_env.HOME }}/.ssh/config", mode: "0600" }
+    - { path: "{{ ansible_env.HOME }}/.ssh/known_hosts", mode: "0644" }
+    - { path: "{{ ansible_env.HOME }}/.ssh/authorized_keys", mode: "0600" }
+  failed_when: false
+
+- name: Ensure public keys have safe permissions (0644)
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    mode: "0644"
+  loop: "{{ ssh_files_found.files | default([]) }}"
+  when: item.path is match('^.*/\\.ssh/.*\\.pub$')
+  failed_when: false
+
+- name: Ensure private keys have safe permissions (0600)
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    mode: "0600"
+  loop: "{{ ssh_files_found.files | default([]) }}"
+  when:
+    - item.path is match('^.*/\\.ssh/.*$')
+    - item.path is not match('^.*/\\.ssh/.*\\.pub$')
+    - item.path is not match('^.*/\\.ssh/config$')
+    - item.path is not match('^.*/\\.ssh/known_hosts$')
+    - item.path is not match('^.*/\\.ssh/authorized_keys$')
+  failed_when: false
+
+- name: Check for SSH public keys in ~/.ssh
+  ansible.builtin.find:
+    paths: "{{ ansible_env.HOME }}/.ssh"
+    patterns: "*.pub"
+    file_type: file
+  register: ssh_pubkeys_found
+  failed_when: false
+  changed_when: false
+
+- name: Check for keys currently loaded in ssh-agent
+  ansible.builtin.command: ssh-add -l
+  register: ssh_agent_keys
+  failed_when: false
+  changed_when: false
+
+- name: Detect common SSH private key files
+  ansible.builtin.set_fact:
+    ssh_private_keys_detected: >-
+      {{
+        (ssh_files_found.files | default([]))
+        | map(attribute='path')
+        | select('match', '^.*/\\.ssh/(id_ed25519|id_rsa|id_ecdsa|id_dsa)$')
+        | list
+      }}
+
+- name: Show SSH keys found on disk (public keys)
+  ansible.builtin.debug:
+    msg: >-
+      SSH public keys found in ~/.ssh:
+      {{ (ssh_pubkeys_found.files | default([])) | map(attribute='path') | list }}
+
+- name: Show SSH private keys detected (common names)
+  ansible.builtin.debug:
+    msg: >-
+      SSH private keys detected (common names):
+      {{ ssh_private_keys_detected | default([]) }}
+
+- name: Show ssh-agent loaded keys (if agent is running)
+  ansible.builtin.debug:
+    msg: >-
+      ssh-agent keys:
+      {{ ssh_agent_keys.stdout | default('') }}
+
+- name: Pause if no SSH keys were detected (disk or agent)
+  ansible.builtin.pause:
+    prompt: >-
+      No SSH keys were detected (no ~/.ssh/*.pub and no keys in ssh-agent).
+      If you plan to clone via git@github.com:..., create/import a key and add it to GitHub,
+      then press Enter to continue (or Ctrl+C to abort).
+  when:
+    - (ssh_pubkeys_found.matched | default(0) | int) == 0
+    - (ssh_agent_keys.rc | default(1) | int) != 0
+
+- name: Offer to add detected SSH keys to ssh-agent
+  ansible.builtin.pause:
+    prompt: >-
+      ssh-agent appears available. Do you want to add detected keys to ssh-agent now?
+      Detected: {{ ssh_private_keys_detected | default([]) }}
+      Type 'yes' to add them (anything else skips).
+  register: ssh_add_confirm
+  when:
+    - (ssh_agent_keys.rc | default(1) | int) == 0
+    - (ssh_private_keys_detected | default([]) | length) > 0
+
+- name: Add detected private keys to ssh-agent (may prompt for passphrases)
+  ansible.builtin.command: ssh-add "{{ item }}"
+  loop: "{{ ssh_private_keys_detected | default([]) }}"
+  when:
+    - ssh_add_confirm is defined
+    - (ssh_add_confirm.user_input | default('') | lower) == 'yes'
+  changed_when: true
+  failed_when: false
+
+- name: Show ssh-agent keys after optional add
+  ansible.builtin.command: ssh-add -l
+  register: ssh_agent_keys_after
+  failed_when: false
+  changed_when: false
+
+- name: Display ssh-agent keys after optional add
+  ansible.builtin.debug:
+    msg: >-
+      ssh-agent keys after add attempt:
+      {{ ssh_agent_keys_after.stdout | default('') }}
+
+- name: Confirm SSH keys before cloning private repos
+  ansible.builtin.pause:
+    prompt: >-
+      Confirm SSH keys look correct for GitHub access.
+      Type 'yes' to continue (anything else aborts).
+  register: ssh_keys_confirm
+  when:
+    - (ssh_pubkeys_found.matched | default(0) | int) > 0 or (ssh_agent_keys.rc | default(1) | int) == 0
+
+- name: Abort if SSH keys were not confirmed
+  ansible.builtin.fail:
+    msg: >-
+      Aborting: SSH keys were not confirmed. Fix SSH keys/agent, then re-run.
+  when:
+    - ssh_keys_confirm is defined
+    - (ssh_keys_confirm.user_input | default('') | lower) != 'yes'
